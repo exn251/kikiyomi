@@ -1,3 +1,5 @@
+*   Vibecoded fork with condensed and auto-pause playback, blured non-active lines, batch deletion, support for more audio formats and a couple other minor things I probably forgot about. Made for personal use so YMMV.
+
 # kikiyomi audio book player
 ![player_screenshot](https://github.com/user-attachments/assets/6cd3ef88-8f87-4b43-a946-38864b3d436f)
 
