@@ -36,6 +36,21 @@
         .icon-btn:hover { color: #fff; }
         .del-btn { color: #555; font-size: 1.2rem; padding: 0 15px; cursor: pointer; background: transparent; border:none; height: 100%; display: flex; align-items: center; }
         .del-btn:hover { color: #ff5555; }
+		
+		/* --- BATCH DELETE UI --- */
+        .selection-bar { 
+            display: flex; align-items: center; justify-content: space-between; 
+            width: 100%; background: #1a1a1a; padding: 10px 15px; 
+            border-radius: 8px; margin-bottom: 15px; border: 1px solid #333;
+        }
+        .lib-item-wrapper { display: flex; align-items: center; gap: 10px; width: 100%; }
+        .lib-checkbox { 
+            width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary); 
+            flex-shrink: 0; margin-left: 5px;
+        }
+        .batch-del-btn { color: #ff5555; background: transparent; border: 1px solid #442222; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .batch-del-btn:hover { background: #442222; }
+        .batch-del-btn:disabled { color: #444; border-color: #333; cursor: default; }
         
         /* --- MODALS --- */
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index: 200; display:flex; justify-content:center; align-items:center; backdrop-filter: blur(2px); }
@@ -65,7 +80,6 @@
         .bm-book-title { color: var(--primary); font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
         .bm-del-btn { color: #666; background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px 10px; }
         .bm-del-btn:hover { color: #ff5555; background: #333; border-radius: 4px; }
-
         /* --- VIEW: LIBRARY --- */
         #view-library { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; max-width: 800px; margin: 0 auto; width: 100%; }
         
@@ -74,7 +88,6 @@
         .drop-zone.dragover { border-color: var(--primary); background: #222; }
         
         #library-list { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-
         .lib-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-radius: 8px; background: #252525; border: 1px solid #333; cursor: pointer; transition: transform 0.1s, background 0.2s; height: 80px; overflow: hidden; }
         .lib-item:hover { background: #2a2a2a; }
         .lib-item:active { transform: scale(0.99); }
@@ -90,7 +103,6 @@
         .badge.linked { border-color: #4a9eff; color: #4a9eff; }
         .badge.playing { border-color: var(--primary); color: var(--primary); font-weight: bold; }
         .version-footer { margin-top: auto; padding-top: 20px; color: #444; font-size: 0.8rem; font-family: monospace; }
-
         /* --- VIEW: PLAYER --- */
         #view-player { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; position: relative; }
         
@@ -124,10 +136,9 @@
         #sub-list li .text-container {
             text-align: center;
             text-wrap: balance;
-            transition: color 0.1s, transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            transition: color 0.1s, transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.25s ease; 
             transform-origin: center center;
         }
-
         #sub-list li:hover { color: #888; }
         
         /* Active State: Scale only the text container */
@@ -136,6 +147,14 @@
             font-weight: var(--active-weight); 
             transform: scale(var(--active-scale)); 
             text-shadow: 0 0 20px rgba(0,0,0,0.5); 
+        }
+
+        /* Blur inactive lines — toggled by class on #sub-list */
+        #sub-list.blur-inactive li:not(.active) .text-container {
+            filter: blur(6px);
+        }
+        #sub-list.blur-inactive li.active .text-container {
+            filter: none;
         }
         
         /* Bookmark Star */
@@ -159,8 +178,8 @@
         .star-btn.filled { opacity: 1; color: var(--warn); }
         
         /* Empty State SRT Upload */
-        .srt-empty-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; width: 100%; padding: 40px; box-sizing: border-box; }
-        .srt-empty { width: 100%; height: 100%; max-width: 600px; max-height: 300px; border: 3px dashed #333; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #666; cursor: pointer; transition: all 0.2s; background: #151515; }
+        .srt-empty-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; z-index: 20; }
+        .srt-empty { width: 100%; height: 100%; border: 3px dashed #333; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #666; cursor: pointer; transition: all 0.2s; background: #151515; }
         .srt-empty:hover { border-color: var(--primary); color: #e0e0e0; background: #1a1a1a; transform: scale(1.01); }
         .srt-empty-icon { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
     
@@ -223,7 +242,6 @@
         <div class="spinner"></div>
         <div style="color:white; font-weight:bold; letter-spacing:1px;">Processing...</div>
     </div>
-
     <!-- FILE REQUEST MODAL -->
     <div id="modal-file-req" class="modal-overlay hidden">
         <div class="modal">
@@ -249,6 +267,7 @@
             <div class="setting-row"><label>Active Line Scale</label><div class="setting-input-group"><input type="number" id="opt-active-scale" min="1.0" max="2.0" step="0.05" value="1.05" onchange="App.applySettings()" style="width:70px"></div></div>
             <div class="setting-row"><label>Bold Active Line</label><input type="checkbox" id="opt-bold" onchange="App.applySettings()" style="width:20px; height:20px; accent-color: var(--primary);"></div>
             <div class="setting-row"><label>Fill Silence (Gaps)</label><input type="checkbox" id="opt-fill" checked onchange="App.applySettings()" style="width:20px; height:20px; accent-color: var(--primary);"></div>
+            <div class="setting-row"><label>Blur Non-Active Lines</label><input type="checkbox" id="opt-blur" onchange="App.applySettings()" style="width:20px; height:20px; accent-color: var(--primary);"></div>
             <div style="text-align: right; margin-top:20px;"><button class="btn btn-primary" onclick="App.toggleModal('modal-settings')">Done</button></div>
         </div>
     </div>
@@ -270,7 +289,6 @@
             </div>
         </div>
     </div>
-
     <!-- HELP -->
     <div id="modal-help" class="modal-overlay hidden" onclick="if(event.target===this) App.toggleModal('modal-help')">
         <div class="modal">
@@ -291,18 +309,17 @@
     <div id="view-library">
         <h1 style="color: var(--primary); letter-spacing: 2px; font-weight: normal; margin-bottom: 20px;">kikiyomi</h1>
         
-        <div id="drop-zone" class="drop-zone">
+		<div id="drop-zone" class="drop-zone">
             <div style="font-size: 2rem; opacity: 0.7;">🎧</div>
             <div style="display:flex; flex-direction:column; align-items: flex-start;">
                 <div style="color: #e0e0e0; font-weight: bold; font-size: 1rem;">Open Audio File</div>
-                <div style="color: #666; font-size: 0.8rem;">.m4b, .mp3 + .srt</div>
+                <div style="color: #666; font-size: 0.8rem;">.m4b, .mp3, .ogg, .opus, .wav + .srt</div>
             </div>
-            <input type="file" id="file-input" hidden multiple accept=".mp3,.m4b,.aac,.srt,.json,.m4a">
+            <input type="file" id="file-input" hidden multiple accept=".mp3,.m4b,.aac,.srt,.json,.m4a,.ogg,.opus,.wav">
         </div>
-
         <h3 style="align-self: flex-start; margin-bottom: 10px; color: #555; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Library</h3>
         <div id="library-list"></div>
-        <div class="version-footer">v0.0.4</div>
+        <div class="version-footer">v0.0.6-a</div>
     </div>
     
     <!-- PLAYER -->
@@ -313,6 +330,7 @@
                 <div id="player-title">...</div>
             </div>
             <div style="display:flex; align-items: center; z-index: 2;">
+                <button id="btn-playmode" class="btn" onclick="App.cyclePlayMode()" style="margin-right:5px; min-width:85px; transition: all 0.2s;" title="Toggle Playback Modes">Normal</button>
                 <button class="btn" onclick="App.showBookmarks()" style="margin-right:5px">★</button>
                 <button class="btn" onclick="App.toggleChapters()" style="margin-right:5px">Chapters</button>
                 <button class="btn" onclick="App.toggleFocusMode()" style="margin-right:5px">Focus</button>
@@ -356,7 +374,7 @@
     <audio id="audio-el" hidden></audio>
     <script>
     // --- UTILS ---
-    const Utils = {
+	const Utils = {
         async read(file, start, len) {
             if (start >= file.size) throw new Error("OOB");
             const chunk = file.slice(start, start + len);
@@ -366,23 +384,38 @@
             return new TextDecoder().decode(new Uint8Array(view.buffer, offset, len));
         },
         fmtTime(s) {
-            if (isNaN(s)) return "00:00";
+            if (isNaN(s) || s === null) return "00:00";
             const h = Math.floor(s / 3600);
             const m = Math.floor((s % 3600) / 60);
             const sec = Math.floor(s % 60);
             if (h > 0) return `${h}:${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
             return `${m}:${sec.toString().padStart(2,'0')}`;
+        },
+        // Probes the audio file to get its duration in seconds
+        getDuration(file) {
+            return new Promise(resolve => {
+                const audio = new Audio();
+                const url = URL.createObjectURL(file);
+                audio.src = url;
+                audio.onloadedmetadata = () => {
+                    const d = audio.duration;
+                    URL.revokeObjectURL(url); // Clean up memory
+                    resolve(d);
+                };
+                audio.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    resolve(0);
+                };
+            });
         }
     };
-
     // --- PARSERS ---
     const M4BParser = {
         async parse(file) {
-            const context = { file: file, meta: { cover: null, tags: {}, chapters: [] } };
+            const context = { file: file, meta: { cover: null, tags: {}, chapters:[] } };
             try {
                 const moov = await this.findAtom(context, 0, file.size, 'moov');
                 if (!moov) return context.meta;
-
                 // Chapters & Meta
                 const udta = await this.findAtom(context, moov.contentStart, moov.end, 'udta');
                 if (udta) {
@@ -490,27 +523,23 @@
             const stsc = await this.findAtom(ctx, stbl.contentStart, stbl.end, 'stsc');
             const co = await this.findAtom(ctx, stbl.contentStart, stbl.end, 'stco') || await this.findAtom(ctx, stbl.contentStart, stbl.end, 'co64');
             if (!stts || !stsz || !stsc || !co) return;
-
             const mdhd = await this.findAtom(ctx, mdia.contentStart, mdia.end, 'mdhd');
             const mdhdView = await Utils.read(ctx.file, mdhd.contentStart, 24);
             const ver = mdhdView.getUint8(0);
             const timescale = mdhdView.getUint32(ver === 1 ? 20 : 12);
-
             const sttsView = await Utils.read(ctx.file, stts.contentStart, stts.size-8);
             const sttsCount = sttsView.getUint32(4);
-            let durations = [], ptr = 8;
+            let durations =[], ptr = 8;
             for(let i=0; i<sttsCount; i++) {
                 const c = sttsView.getUint32(ptr), d = sttsView.getUint32(ptr+4); ptr+=8;
                 for(let j=0; j<c; j++) durations.push(d);
             }
-
             const stszView = await Utils.read(ctx.file, stsz.contentStart, stsz.size-8);
             const uSz = stszView.getUint32(4), sCnt = stszView.getUint32(8);
-            let sizes = [];
+            let sizes =[];
             if (uSz !== 0) { for(let i=0; i<sCnt; i++) sizes.push(uSz); }
             else { ptr = 12; for(let i=0; i<sCnt; i++) { sizes.push(stszView.getUint32(ptr)); ptr+=4; } }
-
-            let chunks = [];
+            let chunks =[];
             const coView = await Utils.read(ctx.file, co.contentStart, co.size-8);
             const coCnt = coView.getUint32(4); ptr = 8;
             const coType = Utils.readStr({buffer:(await Utils.read(ctx.file, co.start+4, 4)).buffer},0,4);
@@ -518,12 +547,10 @@
                 if(coType==='stco') { chunks.push(coView.getUint32(ptr)); ptr+=4; }
                 else { chunks.push(Number(coView.getBigUint64(ptr))); ptr+=8; }
             }
-
             const stscView = await Utils.read(ctx.file, stsc.contentStart, stsc.size-8);
             const stscCnt = stscView.getUint32(4);
-            let stscE = []; ptr=8;
+            let stscE =[]; ptr=8;
             for(let i=0; i<stscCnt; i++) { stscE.push({f:stscView.getUint32(ptr), c:stscView.getUint32(ptr+4)}); ptr+=12; }
-
             let currTime=0, sIdx=0, stscIdx=0; const dec = new TextDecoder('utf-8');
             for(let cIdx=0; cIdx<chunks.length; cIdx++) {
                 if(stscIdx<stscE.length-1 && (cIdx+1)>=stscE[stscIdx+1].f) stscIdx++;
@@ -544,10 +571,9 @@
             }
         }
     };
-
     const ID3Parser = {
         async parse(file) {
-            const meta = { cover: null, tags: {}, chapters: [] };
+            const meta = { cover: null, tags: {}, chapters:[] };
             const h = await Utils.read(file, 0, 10);
             if (Utils.readStr(h, 0, 3) !== 'ID3') return meta;
             const fnSize = (h.getUint8(6)<<21)|(h.getUint8(7)<<14)|(h.getUint8(8)<<7)|h.getUint8(9);
@@ -629,8 +655,8 @@
     };
     
     const App = {
-        currentBook: null, activeAudioBlob: null,
-        settings: { font: '', size: 36, fillGap: true, bold: false, focusWidth: 90, activeScale: 1.05 },
+        currentBook: null, activeAudioBlob: null, sessionFiles: {}, // Add sessionFiles here
+        settings: { font: '', size: 36, fillGap: true, bold: false, focusWidth: 90, activeScale: 1.05, playMode: 'normal', blurInactive: false },
         async init() {
             await DB.init();
             this.loadSettings();
@@ -643,8 +669,7 @@
             };
             
             document.getElementById('file-input').onchange = (e) => this.handleFiles(e.target.files);
-            document.getElementById('srt-upload').onchange = (e) => this.handleSrtUpload(e.target.files[0]);
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(n => {
+            document.getElementById('srt-upload').onchange = (e) => this.handleSrtUpload(e.target.files[0]);['dragenter', 'dragover', 'dragleave', 'drop'].forEach(n => {
                 document.body.addEventListener(n, e => { e.preventDefault(); e.stopPropagation(); }, false);
             });
             document.body.addEventListener('dragover', () => dz.classList.add('dragover'));
@@ -652,7 +677,7 @@
             
             document.body.addEventListener('drop', async (e) => {
                 dz.classList.remove('dragover');
-                const filePromises = [...e.dataTransfer.items]
+                const filePromises =[...e.dataTransfer.items]
                     .filter(item => item.kind === 'file')
                     .map(async (item) => {
                         const file = item.getAsFile();
@@ -673,13 +698,50 @@
             });
             Input.init();
         },
-        async pickFile() {
+		toggleSelectAll(isChecked) {
+            const boxes = document.querySelectorAll('.item-sel');
+            boxes.forEach(b => b.checked = isChecked);
+            this.updateDeleteCount();
+        },
+        updateDeleteCount() {
+            const checked = document.querySelectorAll('.item-sel:checked');
+            const btn = document.getElementById('batch-del-btn');
+            if (btn) {
+                btn.disabled = checked.length === 0;
+                btn.textContent = `Delete Selected (${checked.length})`;
+            }
+            // Sync "Select All" checkbox state
+            const allBoxes = document.querySelectorAll('.item-sel');
+            const selAll = document.getElementById('sel-all');
+            if (selAll) selAll.checked = (checked.length === allBoxes.length && allBoxes.length > 0);
+        },
+        async deleteSelected() {
+            const checked = document.querySelectorAll('.item-sel:checked');
+            if (checked.length === 0) return;
+            
+            if (!confirm(`Are you sure you want to delete ${checked.length} selected items?`)) return;
+            const activeId = localStorage.getItem('activeBookId');
+            
+            for (let box of checked) {
+                const id = box.getAttribute('data-id');
+                await DB.deleteMetadata(id);
+                delete this.sessionFiles[id];
+                
+                if (activeId === id) {
+                    await DB.clearActive();
+                    localStorage.removeItem('activeBookId');
+                }
+            }
+            
+            this.renderLibrary();
+        },
+		async pickFile() {
             try {
                 const handles = await window.showOpenFilePicker({
-                    types: [{ description: 'Audio & Subtitles', accept: { 'audio/*': ['.mp3', '.m4b', '.aac', '.m4a'], 'text/plain': ['.srt', '.json'] } }],
+                    types:[{ description: 'Audio & Subtitles', accept: { 'audio/*':['.mp3', '.m4b', '.aac', '.m4a', '.ogg', '.opus', '.wav'], 'text/plain':['.srt', '.json'] } }],
                     multiple: true
                 });
-                const files = [];
+                const files =[];
                 for (const h of handles) {
                     const f = await h.getFile(); f.handle = h; files.push(f);
                 }
@@ -693,6 +755,8 @@
             this.settings.bold = localStorage.getItem('ky_bold') === "true"; 
             this.settings.focusWidth = parseInt(localStorage.getItem('ky_focus_width') || "90");
             this.settings.activeScale = parseFloat(localStorage.getItem('ky_active_scale') || "1.05");
+            this.settings.playMode = localStorage.getItem('ky_playMode') || 'normal';
+            this.settings.blurInactive = localStorage.getItem('ky_blur') === "true";
     
             document.getElementById('opt-font').value = this.settings.font;
             document.getElementById('opt-size').value = this.settings.size;
@@ -700,7 +764,9 @@
             document.getElementById('opt-bold').checked = this.settings.bold;
             document.getElementById('opt-focus-width').value = this.settings.focusWidth;
             document.getElementById('opt-active-scale').value = this.settings.activeScale;
+            document.getElementById('opt-blur').checked = this.settings.blurInactive;
             this.applySettings();
+            this.updatePlayModeBtn();
         },
         applySettings() {
             this.settings.font = document.getElementById('opt-font').value;
@@ -709,12 +775,21 @@
             this.settings.bold = document.getElementById('opt-bold').checked;
             this.settings.focusWidth = parseInt(document.getElementById('opt-focus-width').value);
             this.settings.activeScale = parseFloat(document.getElementById('opt-active-scale').value);
+            this.settings.blurInactive = document.getElementById('opt-blur').checked;
     
             document.documentElement.style.setProperty('--font-reader', this.settings.font);
             document.documentElement.style.setProperty('--font-size-base', this.settings.size + 'px');
             document.documentElement.style.setProperty('--active-weight', this.settings.bold ? 'bold' : 'normal');
             document.documentElement.style.setProperty('--focus-width', this.settings.focusWidth + '%');
             document.documentElement.style.setProperty('--active-scale', this.settings.activeScale);
+
+            // Toggle blur class on the subtitle list
+            const subList = document.getElementById('sub-list');
+            if (this.settings.blurInactive) {
+                subList.classList.add('blur-inactive');
+            } else {
+                subList.classList.remove('blur-inactive');
+            }
     
             localStorage.setItem('ky_font', this.settings.font);
             localStorage.setItem('ky_size', this.settings.size);
@@ -722,11 +797,40 @@
             localStorage.setItem('ky_bold', this.settings.bold);
             localStorage.setItem('ky_focus_width', this.settings.focusWidth);
             localStorage.setItem('ky_active_scale', this.settings.activeScale);
+            localStorage.setItem('ky_blur', this.settings.blurInactive);
             
             if (Player.meta) Player.syncSub(); 
         },
+        cyclePlayMode() {
+            const modes =['normal', 'condensed', 'autopause'];
+            let idx = modes.indexOf(this.settings.playMode) + 1;
+            if (idx >= modes.length) idx = 0;
+            this.settings.playMode = modes[idx];
+            localStorage.setItem('ky_playMode', this.settings.playMode);
+            this.updatePlayModeBtn();
+            Player.autoPauseTarget = null; // Reset player pause tracking
+            Player.lastAutoPausedIndex = -1;
+            Player.currentAutoPauseIdx = -1;
+        },
+        updatePlayModeBtn() {
+            const btn = document.getElementById('btn-playmode');
+            if (!btn) return;
+            const labels = {'normal': 'Normal', 'condensed': 'Condensed', 'autopause': 'Auto-Pause'};
+            btn.textContent = labels[this.settings.playMode];
+            if (this.settings.playMode !== 'normal') {
+                btn.style.color = '#121212';
+                btn.style.background = 'var(--primary)';
+                btn.style.border = '1px solid var(--primary)';
+                btn.style.fontWeight = 'bold';
+            } else {
+                btn.style.color = '';
+                btn.style.background = '';
+                btn.style.border = '';
+                btn.style.fontWeight = '';
+            }
+        },
         toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); },
-        async renderLibrary() {
+		async renderLibrary() {
             document.getElementById('view-library').classList.remove('hidden');
             document.getElementById('view-player').classList.add('hidden');
             document.getElementById('view-focus').classList.add('hidden');
@@ -738,38 +842,54 @@
             
             const list = document.getElementById('library-list');
             list.innerHTML = '';
+            // 1. Create/Update Selection Bar
+            const libView = document.getElementById('view-library');
+            let selBar = libView.querySelector('.selection-bar');
+            if (allBooks.length > 0) {
+                if (!selBar) {
+                    selBar = document.createElement('div');
+                    selBar.className = 'selection-bar';
+                    libView.insertBefore(selBar, list);
+                }
+                selBar.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px; color:#888; font-size:0.85rem;">
+                        <input type="checkbox" id="sel-all" class="lib-checkbox" onclick="App.toggleSelectAll(this.checked)">
+                        <label for="sel-all" style="cursor:pointer">Select All</label>
+                    </div>
+                    <button id="batch-del-btn" class="batch-del-btn" disabled onclick="App.deleteSelected()">Delete Selected (0)</button>
+                `;
+            } else if (selBar) {
+                selBar.remove();
+            }
             
+            // 2. Render List with Checkboxes
             allBooks.forEach(book => {
                 const isActive = (book.id === activeId);
-                const isCached = isActive && cachedAudio;
-                
-                const div = document.createElement('div');
-                div.className = 'lib-item';
-                if (isActive && isCached) div.classList.add('active-book');
+                const isCached = isActive && (cachedAudio || this.sessionFiles[book.id]);
+                const pct = book.duration > 0 ? (book.progress / book.duration * 100).toFixed(1) : 0;
                 
                 let badges = '';
                 if (isActive && isCached) badges += '<span class="badge playing">Now Playing</span> ';
                 else if (book.handle) badges += '<span class="badge linked">Linked</span> ';
-                
-                const pct = book.duration > 0 ? (book.progress / book.duration * 100).toFixed(1) : 0;
-                
                 let imgHtml = '<div class="lib-cover">💿</div>';
                 if (book.cover && book.cover.blob) {
                     const url = URL.createObjectURL(book.cover.blob);
                     imgHtml = `<img class="lib-cover" src="${url}">`;
                 }
-
-                div.innerHTML = `
-                <div style="display:flex; align-items:center; flex:1; height:100%; overflow:hidden;" onclick="App.loadBookFromHistory('${book.id}')">
-                    ${imgHtml}
-                    <div class="lib-info">
-                        <div class="lib-title">${book.title}</div>
-                        <div class="lib-meta">${Utils.fmtTime(book.progress)} / ${Utils.fmtTime(book.duration)} ${badges}</div>
-                        <div class="progress-bar-mini"><div class="progress-fill-mini" style="width:${pct}%"></div></div>
+                const wrapper = document.createElement('div');
+                wrapper.className = 'lib-item-wrapper';
+                wrapper.innerHTML = `
+                    <input type="checkbox" class="lib-checkbox item-sel" data-id="${book.id}" onclick="App.updateDeleteCount()">
+                    <div class="lib-item ${isActive && isCached ? 'active-book' : ''}" style="flex:1" onclick="App.loadBookFromHistory('${book.id}')">
+                        ${imgHtml}
+                        <div class="lib-info">
+                            <div class="lib-title">${book.title}</div>
+                            <div class="lib-meta">${Utils.fmtTime(book.progress)} / ${Utils.fmtTime(book.duration)} ${badges}</div>
+                            <div class="progress-bar-mini"><div class="progress-fill-mini" style="width:${pct}%"></div></div>
+                        </div>
                     </div>
-                </div>
-                <button class="del-btn" onclick="App.deleteBook('${book.id}', event)">×</button>`;
-                list.appendChild(div);
+                `;
+                list.appendChild(wrapper);
             });
             
             if (list.children.length === 0) {
@@ -794,7 +914,6 @@
                 if(this.currentBook && b.id === this.currentBook.id) return;
                 select.innerHTML += `<option value="${b.id}">${b.title}</option>`;
             });
-
             this.renderBookmarkList();
         },
         async renderBookmarkList() {
@@ -803,13 +922,12 @@
             
             const filter = document.getElementById('bm-filter').value;
             const books = await DB.getAllMetadata();
-            let bookmarks = [];
+            let bookmarks =[];
             
             books.forEach(b => {
                 // Filter logic
                 if(filter === 'current' && this.currentBook && b.id !== this.currentBook.id) return;
                 if(filter !== 'all' && filter !== 'current' && b.id !== filter) return;
-
                 if(b.bookmarks && b.bookmarks.length > 0) {
                     b.bookmarks.forEach(bm => {
                         bookmarks.push({ ...bm, bookId: b.id, bookTitle: b.title });
@@ -869,8 +987,8 @@
         },
         async exportBookmarks() {
             if(!this.currentExportData || this.currentExportData.length === 0) return alert("No bookmarks to export.");
-            const header = ["Book Title", "Text", "Time Start", "Time End", "Created Date"];
-            const rows = this.currentExportData.map(bm => [
+            const header =["Book Title", "Text", "Time Start", "Time End", "Created Date"];
+            const rows = this.currentExportData.map(bm =>[
                 `"${bm.bookTitle.replace(/"/g, '""')}"`,
                 `"${bm.text.replace(/"/g, '""')}"`,
                 bm.start,
@@ -878,7 +996,7 @@
                 new Date(bm.created).toISOString()
             ]);
             
-            const csvContent = [header.join(","), ...rows.map(r => r.join(","))].join("\n");
+            const csvContent =[header.join(","), ...rows.map(r => r.join(","))].join("\n");
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
@@ -897,51 +1015,65 @@
             // Otherwise load the book then seek
             await this.loadBookFromHistory(bookId, time);
         },
-        async handleFiles(files) {
+		async handleFiles(files) {
             document.getElementById('loading-overlay').classList.remove('hidden');
             setTimeout(async () => {
                 try {
-                    let audioFile = null, srtFile = null, jsonFile = null;
                     const getExt = (name) => name.split('.').pop().toLowerCase();
+                    const groups = {};
                     for (let f of files) {
                         const ext = getExt(f.name);
-                        if (['mp3','m4b','aac','mp4','m4a'].includes(ext)) audioFile = f;
-                        if (ext === 'srt') srtFile = f;
-                        if (ext === 'json') jsonFile = f;
+                        let baseName = f.name;
+                        let changed = true;
+                        while (changed) {
+                            let prevName = baseName;
+                            baseName = baseName.replace(/\.(mp3|m4b|aac|mp4|m4a|ogg|opus|wav|srt|json)$/i, '');
+                            if (prevName === baseName) changed = false;
+                        }
+                        if (!groups[baseName]) groups[baseName] = { audio: null, srt: null, json: null };
+                        if (['mp3', 'm4b', 'aac', 'mp4', 'm4a', 'ogg', 'opus', 'wav'].includes(ext)) groups[baseName].audio = f;
+                        else if (ext === 'srt') groups[baseName].srt = f;
+                        else if (ext === 'json') groups[baseName].json = f;
                     }
-                    if (audioFile) {
+                    const groupKeys = Object.keys(groups);
+                    for (const baseName of groupKeys) {
+                        const { audio: audioFile, srt: srtFile, json: jsonFile } = groups[baseName];
+                        if (!audioFile) continue;
                         const id = "b_" + Math.abs(this.hashCode(audioFile.name));
                         let meta = (await DB.getAllMetadata()).find(b => b.id === id);
                         if (!meta) {
                             meta = {
-                                id: id, title: audioFile.name.replace(/\.(mp3|m4b|aac|mp4|m4a)$/i, ''),
-                                duration: 0, progress: 0, lastPlayed: Date.now(), subs: [], chapters: [], bookmarks: [], cover: null
+                                id: id, title: baseName, duration: 0, progress: 0, 
+                                lastPlayed: Date.now(), subs: [], chapters: [], bookmarks:[], cover: null
                             };
                         }
+                        // Get duration if we don't have it yet
+                        if (!meta.duration || meta.duration === 0) {
+                            meta.duration = await Utils.getDuration(audioFile);
+                        }
                         if (audioFile.handle) meta.handle = audioFile.handle;
-                        if (!meta.bookmarks) meta.bookmarks = []; // Schema migration
                         
                         let parsed = {};
-                        if (getExt(audioFile.name) === 'mp3') parsed = await ID3Parser.parse(audioFile);
-                        else parsed = await M4BParser.parse(audioFile);
-                        
-                        if (parsed.chapters && parsed.chapters.length) meta.chapters = parsed.chapters;
+                        const audioExt = getExt(audioFile.name);
+                        if (audioExt === 'mp3') parsed = await ID3Parser.parse(audioFile);
+                        else if (['m4b', 'aac', 'mp4', 'm4a'].includes(audioExt)) parsed = await M4BParser.parse(audioFile);
+                        else parsed = { chapters:[], tags: {}, cover: null };
+                        if (parsed.chapters?.length) meta.chapters = parsed.chapters;
                         if (parsed.cover) meta.cover = parsed.cover;
-                        if (parsed.tags && parsed.tags.Title && meta.progress === 0) meta.title = parsed.tags.Title;
-
+                        if (parsed.tags?.Title && meta.progress === 0) meta.title = parsed.tags.Title;
                         if (srtFile) meta.subs = await this.parseSrt(srtFile);
                         if (jsonFile) meta.chapters = await this.parseJsonChapters(jsonFile);
-                        
-                        await DB.setActiveAudio(audioFile);
                         await DB.saveMetadata(meta);
-                        localStorage.setItem('activeBookId', id);
-                        this.currentBook = meta;
-                        this.activeAudioBlob = audioFile;
-                        this.launchPlayer();
-                    } else if (srtFile) { alert("Please drop the audio file too, or drag the .srt file into the player once the audio is loaded."); }
-                    else { alert("Please drop the Audio File."); }
-                } catch (e) { console.error(e); alert("Error processing file."); } 
-                finally { document.getElementById('loading-overlay').classList.add('hidden'); }
+                        this.sessionFiles[id] = audioFile; // Store in session cache
+                    }
+                    this.renderLibrary();
+                } catch (e) {
+                    console.error(e);
+                    alert("Error processing files.");
+                } finally {
+                    document.getElementById('loading-overlay').classList.add('hidden');
+                    document.getElementById('file-input').value = "";
+                }
             }, 50);
         },
         async handleSrtUpload(file) {
@@ -956,15 +1088,15 @@
                 Player.syncSub();
                 alert("Subtitles loaded!");
             } catch(e) { alert("Failed to parse SRT"); }
+            finally { document.getElementById('srt-upload').value = ""; }
         },
-        async loadBookFromHistory(id, seekTo = null) {
+		async loadBookFromHistory(id, seekTo = null) {
             const books = await DB.getAllMetadata();
             const book = books.find(b => b.id === id);
             if(!book) return;
             
-            // Ensure schema
-            if(!book.bookmarks) book.bookmarks = [];
-
+            if(!book.bookmarks) book.bookmarks =[];
+            // 1. Check if it's already the active one in the DB
             const activeId = localStorage.getItem('activeBookId');
             if (activeId === book.id) {
                 const blob = await DB.getActiveAudio();
@@ -973,7 +1105,18 @@
                     this.launchPlayer(seekTo); return; 
                 }
             }
+            // 2. NEW: Check if we have the file in our session cache (from a recent drop)
+            if (this.sessionFiles[id]) {
+                const file = this.sessionFiles[id];
+                await DB.setActiveAudio(file);
+                localStorage.setItem('activeBookId', book.id);
+                this.currentBook = book;
+                this.activeAudioBlob = file;
+                this.launchPlayer(seekTo);
+                return;
+            }
     
+            // 3. Check if we have a persistent File Handle
             if (book.handle) {
                 try {
                     const perm = await book.handle.queryPermission({ mode: 'read' });
@@ -990,16 +1133,11 @@
                 } catch (e) { console.warn(e); }
             }
     
+            // 4. Fallback: Show the "Load File" modal
             this.pendingBookId = id;
             this.pendingSeek = seekTo;
             document.getElementById('req-filename').textContent = book.title + " (Audio File)";
             document.getElementById('modal-file-req').classList.remove('hidden');
-        },
-        pendingBookId: null,
-        pendingSeek: null,
-        triggerFileSelect() {
-            document.getElementById('modal-file-req').classList.add('hidden');
-            document.getElementById('file-input').click();
         },
         async deleteBook(id, event) {
             event.stopPropagation();
@@ -1038,10 +1176,10 @@
         async parseSrt(file) {
             const text = await file.text();
             const pattern = /(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n((?:(?!\d+\n).)*)/gs;
-            const matches = [...text.replace(/\r\n/g, '\n').matchAll(pattern)];
+            const matches =[...text.replace(/\r\n/g, '\n').matchAll(pattern)];
             return matches.map(m => ({ start: this.timeToSec(m[2]), end: this.timeToSec(m[3]), text: m[4].trim() }));
         },
-        async parseJsonChapters(file) { try { return JSON.parse(await file.text()); } catch(e) { return []; } },
+        async parseJsonChapters(file) { try { return JSON.parse(await file.text()); } catch(e) { return[]; } },
         timeToSec(tStr) {
             const [h, m, s] = tStr.replace(',', '.').split(':');
             return parseFloat(h)*3600 + parseFloat(m)*60 + parseFloat(s);
@@ -1050,16 +1188,26 @@
     
     const Player = {
         audio: document.getElementById('audio-el'),
-        meta: null, subs: [],
+        meta: null, subs:[],
         elTitle: document.getElementById('player-title'), elSubList: document.getElementById('sub-list'),
         elSeek: document.getElementById('seek-bar'), elFill: document.getElementById('seek-fill'), elMarkers: document.getElementById('seek-markers'),
         elTCurr: document.getElementById('t-curr'), elTTotal: document.getElementById('t-total'),
         elBtnPlay: document.getElementById('btn-play'), elFocusText: document.getElementById('focus-text'),
         elChapList: document.getElementById('chapter-list'),
+        autoPauseTarget: null,
+        lastAutoPausedIndex: -1,
+        currentAutoPauseIdx: -1,
+        precisionLoopId: null,
     
         load(meta, blob, seekTo = null) {
-            this.meta = meta; this.subs = meta.subs || [];
-            if(!this.meta.bookmarks) this.meta.bookmarks = [];
+            this.meta = meta; this.subs = meta.subs ||[];
+            this.autoPauseTarget = null;
+            this.lastAutoPausedIndex = -1;
+            this.currentAutoPauseIdx = -1;
+            // FIX: reset active indices so syncSub always fires a scroll on first update
+            this.activeIndex = -1;
+            this.currentChapIdx = -1;
+            if(!this.meta.bookmarks) this.meta.bookmarks =[];
             
             this.elTitle.textContent = meta.title;
             this.audio.src = URL.createObjectURL(blob);
@@ -1078,19 +1226,88 @@
                     this.elSeek.value = this.audio.currentTime; 
                     this.elTCurr.textContent = Utils.fmtTime(this.audio.currentTime); 
                     if(this.audio.duration > 0) this.elFill.style.width = (this.audio.currentTime / this.audio.duration * 100) + "%";
+                    // --- Playback Modes Logic (Condensed / Auto-Pause Target Calculation) ---
+                    if (!this.audio.paused && this.subs && this.subs.length > 0) {
+                        const t = this.audio.currentTime;
+                        let actualIdx = -1;
+                        for (let i = 0; i < this.subs.length; i++) {
+                            if (t >= this.subs[i].start && t <= this.subs[i].end) { actualIdx = i; break; }
+                        }
+                        if (App.settings.playMode === 'condensed' && actualIdx === -1) {
+                            const PAD = 0.25; // 250ms padding around skips
+                            const nextSubIdx = this.subs.findIndex(s => s.start > t);
+                            if (nextSubIdx !== -1) {
+                                const nextSub = this.subs[nextSubIdx];
+                                const prevSub = nextSubIdx > 0 ? this.subs[nextSubIdx - 1] : null;
+                                const gapStart = prevSub ? prevSub.end + PAD : 0;
+                                const gapEnd = nextSub.start - PAD;
+                                if (gapEnd > gapStart && t >= gapStart && t < gapEnd) {
+                                    this.audio.currentTime = gapEnd;
+                                }
+                            }
+                        } else if (App.settings.playMode === 'autopause') {
+                            if (this.autoPauseTarget === null) {
+                                const nextIdx = this.subs.findIndex((s, i) => {
+                                    if (s.end <= t) return false;
+                                    // Skip the sub we just paused on only while still inside it;
+                                    // if the user seeked back before its start, target it normally
+                                    if (i === this.lastAutoPausedIndex && t >= s.start) return false;
+                                    return true;
+                                });
+                                if (nextIdx !== -1) {
+                                    this.autoPauseTarget = this.subs[nextIdx].end;
+                                    this.currentAutoPauseIdx = nextIdx;
+                                }
+                            }
+                        }
+                    }
                 }
                 this.syncSub(); this.syncChapterActive();
                 if (Math.floor(this.audio.currentTime) % 10 === 0) this.save();
             };
-            this.audio.onplay = () => this.updateBtn();
-            this.audio.onpause = () => { this.updateBtn(); this.save(); };
+            this.audio.onplay = () => { this.updateBtn(); this.startPrecisionLoop(); };
+            this.audio.onpause = () => { this.updateBtn(); this.save(); this.stopPrecisionLoop(); };
+        },
+        startPrecisionLoop() {
+            if (this.precisionLoopId) cancelAnimationFrame(this.precisionLoopId);
+            const loop = () => {
+                if (this.audio.paused) return;
+                const t = this.audio.currentTime;
+                
+                if (App.settings.playMode === 'autopause' && this.autoPauseTarget !== null) {
+                    // Check for target crossing with 30ms early trigger margin
+                    if (t >= this.autoPauseTarget - 0.03) {
+                        if ((t - this.autoPauseTarget) < 1.5) {
+                            this.audio.pause();
+                            // Stay just inside the sub end so the line stays highlighted
+                            // for dictionary lookup before moving on
+                            this.audio.currentTime = this.autoPauseTarget - 0.01;
+                            this.lastAutoPausedIndex = this.currentAutoPauseIdx;
+                        }
+                        this.autoPauseTarget = null;
+                    }
+                }
+                this.precisionLoopId = requestAnimationFrame(loop);
+            };
+            this.precisionLoopId = requestAnimationFrame(loop);
+        },
+        stopPrecisionLoop() {
+            if (this.precisionLoopId) { cancelAnimationFrame(this.precisionLoopId); this.precisionLoopId = null; }
         },
         renderSubs() {
             this.elSubList.innerHTML = '';
+            // FIX: reset scroll position to top when loading new content
+            this.elSubList.scrollTop = 0;
+
+            // Re-apply blur class in case it was cleared by innerHTML reset
+            if (App.settings.blurInactive) {
+                this.elSubList.classList.add('blur-inactive');
+            }
+
             if (this.subs.length === 0) { 
                 this.elSubList.innerHTML = `
                     <div class="srt-empty-container">
-                        <div class="srt-empty" onclick="if('showOpenFilePicker' in window){App.pickFile()}else{document.getElementById('file-input').click()}">
+                        <div class="srt-empty" onclick="document.getElementById('srt-upload').click()">
                             <div class="srt-empty-icon">📝</div>
                             <div style="font-weight:bold; font-size:1.2rem; margin-bottom:5px;">No Subtitles Loaded</div>
                             <div style="font-size:0.9rem;">Drop .srt file here or click to add</div>
@@ -1105,7 +1322,6 @@
             
             const frag = document.createDocumentFragment();
             const bookmarkedIndices = new Set(this.meta.bookmarks.map(b => b.subIndex));
-
             this.subs.forEach((s, i) => {
                 const li = document.createElement('li'); 
                 li.id = `s-${i}`;
@@ -1120,7 +1336,6 @@
                 star.onclick = (e) => { e.stopPropagation(); this.toggleBookmark(i, star); };
                 starCol.appendChild(star);
                 li.appendChild(starCol);
-
                 // --- Text Column ---
                 const txtCol = document.createElement('div');
                 txtCol.className = 'text-container';
@@ -1130,6 +1345,8 @@
                 // Click Behavior: Just Seek
                 li.onclick = () => { 
                     this.audio.currentTime = s.start + 0.001;
+                    this.autoPauseTarget = null;
+                    this.lastAutoPausedIndex = -1;
                 };
                 frag.appendChild(li);
             });
@@ -1160,7 +1377,7 @@
         },
         renderChapters() {
             this.elChapList.innerHTML = '';
-            const chaps = this.meta.chapters || [];
+            const chaps = this.meta.chapters ||[];
             if (chaps.length === 0) { this.elChapList.innerHTML = '<div class="chap-empty">No Chapters found</div>'; return; }
             chaps.forEach((c, i) => {
                 const div = document.createElement('div'); div.className = 'chap-item'; div.id = `chap-${i}`;
@@ -1173,7 +1390,7 @@
         renderMarkers() {
             this.elMarkers.innerHTML = '';
             const dur = this.audio.duration;
-            const chaps = this.meta.chapters || [];
+            const chaps = this.meta.chapters ||[];
             if (dur > 0 && chaps.length > 0) {
                 chaps.forEach(c => {
                     const t = this.getChapTime(c);
@@ -1210,7 +1427,7 @@
         },
         currentChapIdx: -1,
         syncChapterActive() {
-            const chaps = this.meta.chapters || []; if(chaps.length === 0) return;
+            const chaps = this.meta.chapters ||[]; if(chaps.length === 0) return;
             const t = this.audio.currentTime; let idx = -1;
             for(let i=0; i<chaps.length; i++) if(t >= this.getChapTime(chaps[i])) idx = i; else break;
             if(idx !== this.currentChapIdx) {
@@ -1225,6 +1442,8 @@
         pause() { this.audio.pause(); },
         togglePlay() { this.audio.paused ? this.audio.play() : this.audio.pause(); },
         prevSub() {
+            this.autoPauseTarget = null;
+            this.lastAutoPausedIndex = -1;
             if(this.subs.length > 0) {
                 let target = -1;
                 if (this.activeIndex > -1) target = Math.max(0, this.activeIndex - 1);
@@ -1233,6 +1452,8 @@
             } else { this.audio.currentTime = Math.max(0, this.audio.currentTime - 15); }
         },
         nextSub() {
+            this.autoPauseTarget = null;
+            this.lastAutoPausedIndex = -1;
             if(this.subs.length > 0) {
                 let target = -1;
                 if (this.activeIndex > -1) target = Math.min(this.subs.length - 1, this.activeIndex + 1);
@@ -1241,13 +1462,17 @@
             } else { this.audio.currentTime = Math.min(this.audio.duration, this.audio.currentTime + 15); }
         },
         replaySub() {
+            this.autoPauseTarget = null;
+            this.lastAutoPausedIndex = -1;
             if(this.subs.length > 0) {
                 if (this.activeIndex > -1) { this.audio.currentTime = this.subs[this.activeIndex].start + 0.001; }
                 else { const t = this.audio.currentTime; let last = -1; for(let i=0; i<this.subs.length; i++) if (this.subs[i].start <= t) last = i; else break; if (last > -1) this.audio.currentTime = this.subs[last].start + 0.001; }
             } else { this.audio.currentTime = Math.max(0, this.audio.currentTime - 5); }
         },
         prevChap() {
-            const chaps = this.meta.chapters || []; if(chaps.length === 0) return;
+            this.autoPauseTarget = null;
+            this.lastAutoPausedIndex = -1;
+            const chaps = this.meta.chapters ||[]; if(chaps.length === 0) return;
             const t = this.audio.currentTime; let idx = -1;
             for(let i=0; i<chaps.length; i++) if(t >= this.getChapTime(chaps[i])) idx = i; else break; 
             if (idx === -1) { if (t > 5) { this.audio.currentTime = 0; return; } return; }
@@ -1256,7 +1481,9 @@
             else { if (idx > 0) this.audio.currentTime = this.getChapTime(chaps[idx-1]); else this.audio.currentTime = 0; }
         },
         nextChap() {
-            const chaps = this.meta.chapters || []; if(chaps.length === 0) return;
+            this.autoPauseTarget = null;
+            this.lastAutoPausedIndex = -1;
+            const chaps = this.meta.chapters ||[]; if(chaps.length === 0) return;
             const t = this.audio.currentTime; let target = -1;
             for(let i=0; i<chaps.length; i++) if(this.getChapTime(chaps[i]) > t) { target = i; break; }
             if (target > -1) this.audio.currentTime = this.getChapTime(chaps[target]);
@@ -1270,7 +1497,13 @@
     const seekFill = document.getElementById('seek-fill');
     seekBar.addEventListener('mousedown', () => Player.isSeeking = true);
     seekBar.addEventListener('touchstart', () => Player.isSeeking = true);
-    seekBar.addEventListener('change', (e) => { Player.audio.currentTime = e.target.value; Player.isSeeking = false; if(Player.audio.duration) seekFill.style.width = (Player.audio.currentTime / Player.audio.duration * 100) + "%"; });
+    seekBar.addEventListener('change', (e) => { 
+        Player.audio.currentTime = e.target.value; 
+        Player.isSeeking = false; 
+        Player.autoPauseTarget = null; // Reset track bounds for auto-pause logic after seeking
+        Player.lastAutoPausedIndex = -1;
+        if(Player.audio.duration) seekFill.style.width = (Player.audio.currentTime / Player.audio.duration * 100) + "%"; 
+    });
     seekBar.addEventListener('input', (e) => { document.getElementById('t-curr').textContent = Utils.fmtTime(e.target.value); if(Player.audio.duration) seekFill.style.width = (e.target.value / Player.audio.duration * 100) + "%"; });
     
     const focusView = document.getElementById('view-focus');
